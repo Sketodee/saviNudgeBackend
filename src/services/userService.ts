@@ -9,15 +9,10 @@ import {
   updateUser as updateUserModel,
   softDeleteUser as softDeleteUserModel,
 } from '../model/UserModel';
-import { CreateUserDTO, User, ValidationError } from '../types/appScopeTypes';
+import { CreateUserDTO, ServiceResponse, User, ValidationError } from '../types/appScopeTypes';
 import { validateCreateUser } from '../config/validators/userValidator';
 
-export interface ServiceResponse<T = any> {
-  success: boolean;
-  message: string;
-  errors: ValidationError[] | null;
-  data: T | null;
-}
+
 
 export interface UserResponse extends Omit<User, 'password_hash'> {}
 

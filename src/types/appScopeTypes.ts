@@ -1,6 +1,17 @@
 import { Timestamp } from "firebase-admin/firestore";
+import { UserRole } from "./enums";
 
-export interface User {
+export interface IAuditedEntity {
+  created_by: string;
+  created_on: Timestamp | Date;
+  updated_by: string | null;
+  updated_on: Timestamp | Date | null;
+  deleted_by: string | null;
+  deleted_on: Timestamp | Date | null;
+  is_deleted: boolean;
+}
+
+export interface User extends IAuditedEntity {
   user_id: string;
   email: string;
   password_hash: string;
@@ -8,6 +19,7 @@ export interface User {
   phone_number: string;
   profile_image_url: string | null;
   preferred_currency: string;
+  user_role: UserRole;
   date_registered: Timestamp | Date;
   last_login: Timestamp | Date | null;
   is_active: boolean;
@@ -32,5 +44,12 @@ export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
   error: string | null;
+  data: T | null;
+}
+
+export interface ServiceResponse<T = any> {
+  success: boolean;
+  message: string;
+  errors: ValidationError[] | null;
   data: T | null;
 }

@@ -12,24 +12,21 @@ import { ApiResponse } from '../types/appScopeTypes';
 
 
 
-
 export const createUser = async (req: Request, res: Response<ApiResponse>): Promise<void> => {
   try {
     const {
       email,
-      password_hash,
+      password,
       full_name,
       phone_number,
       profile_image_url,
       preferred_currency
     } = req.body;
 
-    console.log('Creating user with email:', email);
-
     // Call service to create user
     const result = await createUserService({
       email,
-      password_hash,
+      password_hash : password,
       full_name,
       phone_number,
       profile_image_url,

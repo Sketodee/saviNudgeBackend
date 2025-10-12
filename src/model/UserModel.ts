@@ -1,6 +1,8 @@
 
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { CreateUserDTO, User } from '../types/appScopeTypes';
+import { UserRole } from '../types/enums';
+import { createAuditedEntity } from '../utils/createAuditedEntity';
 
 const db = getFirestore();
 const usersCollection = db.collection('users');
@@ -8,17 +10,22 @@ const usersCollection = db.collection('users');
 
 export const createUser = async (userData: CreateUserDTO): Promise<User> => {
   try {
-    const docRef = await usersCollection.add({
+    const newUserData = {
       ...userData,
       date_registered: FieldValue.serverTimestamp(),
       last_login: null,
       is_active: true,
-      balance_visibility_default: true
-    });
+      user_role: UserRole.USER,
+      balance_visibility_default: true,
+    };
+
+    const docRef = await usersCollection.add(
+      createAuditedEntity(newUserData, 'system') // or pass the admin/user ID
+    );
 
     const createdDoc = await docRef.get();
     const data = createdDoc.data();
-    
+
     return {
       user_id: createdDoc.id,
       ...data
@@ -36,14 +43,14 @@ export const findUserByEmail = async (email: string): Promise<User | null> => {
       .where('email', '==', email.toLowerCase())
       .limit(1)
       .get();
-    
+
     if (snapshot.empty) {
       return null;
     }
 
-    const doc : any = snapshot.docs[0];
+    const doc: any = snapshot.docs[0];
     const data = doc.data();
-    
+
     return {
       user_id: doc.id,
       ...data
@@ -61,14 +68,14 @@ export const findUserByPhoneNumber = async (phoneNumber: string): Promise<User |
       .where('phone_number', '==', phoneNumber)
       .limit(1)
       .get();
-    
+
     if (snapshot.empty) {
       return null;
     }
 
-    const doc : any = snapshot.docs[0];
+    const doc: any = snapshot.docs[0];
     const data = doc.data();
-    
+
     return {
       user_id: doc.id,
       ...data
@@ -83,13 +90,13 @@ export const findUserByPhoneNumber = async (phoneNumber: string): Promise<User |
 export const findUserById = async (userId: string): Promise<User | null> => {
   try {
     const doc = await usersCollection.doc(userId).get();
-    
+
     if (!doc.exists) {
       return null;
     }
 
     const data = doc.data();
-    
+
     return {
       user_id: doc.id,
       ...data
